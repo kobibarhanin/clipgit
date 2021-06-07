@@ -70,6 +70,10 @@ export async function commit() {
 
 export async function sync() {
   try {
+    if (EXCLUDED_FILES.size > 0 || INCLUDED_FILES.size > 0) {
+      console.log("found pending migration");
+      await migrate(false)
+    }
     console.log("syncing...");
     TRACKED_FILES.forEach((included) => {
       copy_to_stage(included);
@@ -82,9 +86,9 @@ export async function sync() {
   }
 }
 
-export async function migrate() {
+export async function migrate(should_commit: boolean = true) {
   try {
-    console.log("migrate...");
+    console.log("migrating...");
     EXCLUDED_FILES.forEach((excluded) => {
       removed_from_stage(excluded);
       TRACKED_FILES.delete(excluded);
@@ -102,9 +106,10 @@ export async function migrate() {
     CG_CONF["migrations"]["exclude"] = [];
     fs.writeFileSync(CLIPGIT_CONF_FILE, JSON.stringify(CG_CONF));
     console.log("updated configs");
-
-    await commit();
-    console.log("committed to remote!");
+    if (should_commit){
+      await commit();
+      console.log("committed to remote!");
+    }
   } catch (e) {
     console.log((e as Error).message);
   }

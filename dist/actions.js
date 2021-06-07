@@ -116,35 +116,43 @@ function sync() {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    _a.trys.push([0, 2, , 3]);
+                    _a.trys.push([0, 4, , 5]);
+                    if (!(EXCLUDED_FILES.size > 0 || INCLUDED_FILES.size > 0)) return [3 /*break*/, 2];
+                    console.log("found pending migration");
+                    return [4 /*yield*/, migrate(false)];
+                case 1:
+                    _a.sent();
+                    _a.label = 2;
+                case 2:
                     console.log("syncing...");
                     TRACKED_FILES.forEach(function (included) {
                         copy_to_stage(included);
                         console.log("-> copied " + included);
                     });
                     return [4 /*yield*/, commit()];
-                case 1:
+                case 3:
                     _a.sent();
                     console.log("committed to remote");
-                    return [3 /*break*/, 3];
-                case 2:
+                    return [3 /*break*/, 5];
+                case 4:
                     e_1 = _a.sent();
                     console.log(e_1.message);
-                    return [3 /*break*/, 3];
-                case 3: return [2 /*return*/];
+                    return [3 /*break*/, 5];
+                case 5: return [2 /*return*/];
             }
         });
     });
 }
 exports.sync = sync;
-function migrate() {
+function migrate(should_commit) {
+    if (should_commit === void 0) { should_commit = true; }
     return __awaiter(this, void 0, void 0, function () {
         var e_2;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    _a.trys.push([0, 2, , 3]);
-                    console.log("migrate...");
+                    _a.trys.push([0, 3, , 4]);
+                    console.log("migrating...");
                     EXCLUDED_FILES.forEach(function (excluded) {
                         removed_from_stage(excluded);
                         TRACKED_FILES.delete(excluded);
@@ -160,16 +168,18 @@ function migrate() {
                     CG_CONF["migrations"]["exclude"] = [];
                     fs.writeFileSync(CLIPGIT_CONF_FILE, JSON.stringify(CG_CONF));
                     console.log("updated configs");
+                    if (!should_commit) return [3 /*break*/, 2];
                     return [4 /*yield*/, commit()];
                 case 1:
                     _a.sent();
                     console.log("committed to remote!");
-                    return [3 /*break*/, 3];
-                case 2:
+                    _a.label = 2;
+                case 2: return [3 /*break*/, 4];
+                case 3:
                     e_2 = _a.sent();
                     console.log(e_2.message);
-                    return [3 /*break*/, 3];
-                case 3: return [2 /*return*/];
+                    return [3 /*break*/, 4];
+                case 4: return [2 /*return*/];
             }
         });
     });
